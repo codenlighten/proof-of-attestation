@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Proof of Attestation</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <!-- qrious qr code -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"
+      integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrious"></script>
+    <script src="https://unpkg.com/bsv@1.5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bsv@1.5.0/bsv-message.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bsv@1.5.0/bsv-mnemonic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bsv@1.5.0/bsv-ecies.min.js"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      header,
+      footer {
+        background-color: #007bff;
+        color: #fff;
+        text-align: center;
+        padding: 10px 0;
+      }
+      nav a {
+        color: #fff;
+        margin: 0 15px;
+        text-decoration: none;
+      }
+      .container {
+        padding: 20px;
+        max-width: 800px;
+        margin: auto;
+        word-wrap: break-word;
+      }
+      .form-control {
+        margin-bottom: 20px;
+      }
+      .form-control label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .form-control input,
+      .form-control textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .attestation {
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      footer p {
+        margin: 0;
+      }
+      #qrDiv {
+        text-align: center;
+      }
+      #qr {
+        display: none;
+      }
+      .scanner-controls {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .scanner-controls button {
+        margin: 0 10px;
+      }
+      .scanner-message {
+        margin-top: 10px;
+      }
+      a {
+        display: none;
+        color: #007bff;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 768px) {
+        nav a {
+          display: block;
+          margin: 10px 0;
+        }
+        #qrDiv {
+          margin-top: 20px;
+        }
+        #qr {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="attestation.html">Attestation</a>
+        <a href="verification.html">Verification</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <h1>Proof Of Attestation</h1>
+      <p>
+        This is a proof of attestation. The attestation is a cryptographic
+        statement that a device is genuine and trustworthy...
+      </p>
+
+      <div class="form-control">
+        <label for="attestationStatement">Attestation Statement</label>
+        <textarea
+          id="attestationStatement"
+          rows="5"
+          placeholder="Enter your attestation statement here"
+        ></textarea>
+      </div>
+      <button onclick="signAttestation()">Sign Attestation</button>
+      <div class="attestation">
+        <p id="data"></p>
+        <p id="publicKey"></p>
+        <p id="result"></p>
+      </div>
+      <div id="qrDiv">
+        <canvas id="qr"></canvas>
+        <a id="downloadLink" href=""></a>
+      </div>
+      <div class="form-control">
+        <label for="attestationStatementToVerify"
+          >Verify Attestation Statement</label
+        >
+        <textarea
+          id="attestationStatementToVerify"
+          rows="5"
+          placeholder="Enter the attestation statement to verify here"
+        ></textarea>
+      </div>
+      <div class="form-control">
+        <label for="signatureToVerify">Signature</label>
+        <input
+          id="signatureToVerify"
+          type="text"
+          placeholder="Enter the signature to verify here"
+        />
+      </div>
+      <div class="form-control">
+        <label for="publicKeyToVerify">Public Key</label>
+        <input
+          id="publicKeyToVerify"
+          type="text"
+          placeholder="Enter the public key to verify here"
+        />
+      </div>
+      <button onclick="verifyAttestation()">Verify Attestation</button>
+      <p id="verifyResult"></p>
+      <div class="scanner-controls">
+        <button id="start-scan">Start Scan</button>
+        <button id="stop-scan" disabled>Stop Scan</button>
+        <p class="scanner-message" id="scanner-message"></p>
+      </div>
+      <div id="scanner"></div>
+    </main>
+
+    <footer>
+      <p>&copy; 2021 Proof Of Attestation</p>
+    </footer>
+
+    <script>
+      const generateQRCode = (data) => {
+        const qr = new QRious({
+          element: document.getElementById("qr"),
+          size: 750,
+          value: data,
+        });
+      };
+      const copyToClipboard = (elementId) => {
+        const element = document.getElementById(elementId);
+        element.select();
+        document.execCommand("copy");
+        alert("Copied the text: " + element.value);
+      };
+      const Buffer = bsv.deps.Buffer;
+      if (localStorage.getItem("privateKey") === null) {
+        const privateKey = bsv.PrivateKey.fromRandom();
+        localStorage.setItem("privateKey", privateKey.toWIF());
+        console.log("Private Key:", privateKey.toWIF());
+      }
+
+      const hashData = (data) => {
+        // Return the hash as a Buffer
+        return bsv.crypto.Hash.sha256(Buffer.from(data));
+      };
+
+      const signData = (data) => {
+        const privateKey = bsv.PrivateKey.fromWIF(
+          localStorage.getItem("privateKey")
+        );
+
+        // Use the hash buffer directly
+        const hashBuffer = hashData(data);
+        const signature = bsv.crypto.ECDSA.sign(hashBuffer, privateKey);
+
+        return signature.toString();
+      };
+      const verifyData = (data, sig, publicKeyString) => {
+        try {
+          //der format public key
+          const publicKey = bsv.PublicKey.fromString(publicKeyString);
+          // Use the hash buffer directly
+          const hashBuffer = hashData(data);
+          const signature = bsv.crypto.Signature.fromString(sig);
+          const verified = bsv.crypto.ECDSA.verify(
+            hashBuffer,
+            signature,
+            publicKey
+          );
+          return verified;
+        } catch (error) {
+          console.error("Error in verifyData:", error.message);
+          return false;
+        }
+      };
+      let linkStatus = false;
+      const signAttestation = () => {
+        const attestationStatement = document.getElementById(
+          "attestationStatement"
+        ).value;
+        const signature = signData(attestationStatement);
+        //clear the previous qr code
+        document.getElementById("qr").innerHTML = "";
+        document.getElementById("qr").style.display = "none";
+        document.getElementById("downloadLink").style.display = "none";
+        document.getElementById("result").innerText = signature;
+        document.getElementById("data").innerText = attestationStatement;
+        document.getElementById("publicKey").innerText = bsv.PrivateKey.fromWIF(
+          localStorage.getItem("privateKey")
+        )
+          .toPublicKey()
+          .toString();
+        generateQRCode(
+          JSON.stringify({
+            data: attestationStatement,
+            signature,
+            publicKey: bsv.PrivateKey.fromWIF(
+              localStorage.getItem("privateKey")
+            )
+              .toPublicKey()
+              .toString(),
+          })
+        );
+        document.getElementById("qr").style.display = "block";
+        document.getElementById("qr").style.margin = "20px auto";
+        document.getElementById("qr").style.border = "1px solid #ddd";
+        document.getElementById("qr").style.borderRadius = "5px";
+        document.getElementById("qr").title = "Click to copy QR code";
+        document.getElementById("qr").addEventListener("click", () => {
+          copyToClipboard("qr");
+        });
+        // add download link
+        const a = document.getElementById("downloadLink");
+
+        a.href;
+        a.download = "attestation.png";
+        a.innerHTML = "Download QR Code";
+        a.addEventListener("click", () => {
+          a.href = document.getElementById("qr").toDataURL();
+        });
+        document.getElementById("qrDiv").appendChild(a);
+        a.style.display = "block";
+        a.style.textAlign = "center";
+        a.style.marginTop = "10px";
+        a.style.color = "#007bff";
+      };
+
+      const verifyAttestation = () => {
+        const attestationStatement = document.getElementById(
+          "attestationStatementToVerify"
+        ).value;
+        const signature = document.getElementById("signatureToVerify").value;
+        const publicKey = document.getElementById("publicKeyToVerify").value;
+        const verified = verifyData(attestationStatement, signature, publicKey);
+        document.getElementById("verifyResult").innerText = verified;
+      };
+
+      let found = false;
+      let html5QrCode;
+      function initQRScanner() {
+        html5QrCode = new Html5Qrcode("scanner");
+        document
+          .getElementById("start-scan")
+          .addEventListener("click", function () {
+            found = false;
+            // close the previous instance of Html5QrcodeScanner
+            document.getElementById("scanner-message").innerText =
+              "Scanning...";
+            scanQRCode();
+            this.disabled = true;
+            document.getElementById("stop-scan").disabled = false;
+          });
+        document
+          .getElementById("stop-scan")
+          .addEventListener("click", function () {
+            if (html5QrCode) {
+              html5QrCode
+                .stop()
+                .then(() => {
+                  found = false;
+                  console.log("QR Scanning stopped.");
+                  document.getElementById("scanner-message").innerText = "";
+                })
+                .catch((err) => {
+                  console.error("Unable to stop scanning.", err);
+                });
+            }
+            this.disabled = true;
+            document.getElementById("start-san").disabled = false;
+          });
+      }
+      function scanQRCode() {
+        html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: 250 },
+          (qrCodeMessage) => {
+            if (found) {
+              return;
+            }
+            //parse the qr code message
+            try {
+              const qrCodeData = JSON.parse(qrCodeMessage);
+              if (
+                qrCodeData.data &&
+                qrCodeData.signature &&
+                qrCodeData.publicKey
+              ) {
+                document.getElementById("attestationStatementToVerify").value =
+                  qrCodeData.data;
+                document.getElementById("signatureToVerify").value =
+                  qrCodeData.signature;
+                document.getElementById("publicKeyToVerify").value =
+                  qrCodeData.publicKey;
+                verifyAttestation();
+                found = true;
+                document.getElementById("scanner-message").innerText =
+                  "QR code found.";
+                document.getElementById("stop-scan").click();
+              }
+            } catch (error) {
+              console.error("Error parsing QR code message:", error.message);
+            }
+          },
+          (errorMessage) => {
+            // parse error, ignore it.
+          }
+        );
+      }
+
+      window.onload = initQRScanner;
+    </script>
+  </body>
+</html>
