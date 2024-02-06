@@ -483,17 +483,8 @@
               .toPublicKey()
               .toString(),
           };
-          const responseData = await fetch(
-            "https://notaryhash.com//api/v1/data",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(data),
-            }
-          );
-          const response = await responseData.json();
+          const response = await publishData(data);
+
           console.log("Response:", response);
           const txid = response.txid;
           const txidLink = `https://whatsonchain.com/tx/${txid}`;
