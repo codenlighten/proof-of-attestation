@@ -486,14 +486,23 @@
               .toPublicKey()
               .toString(),
           };
-          const responseData = await publishData(data);
-          if (responseData.status === "success") {
-            txid.innerHTML = `Published to blockchain. Txid: ${responseData.txid}`;
-            txid.href = `https://whatsonchain.com/tx/${responseData.txid}`;
-            txid.target = "_blank";
-          } else {
-            txid.innerHTML = `Error publishing to blockchain. ${responseData.message}`;
-          }
+          const responseData = await fetch(
+            "https://notaryhash.com//api/v1/data",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            }
+          );
+          const response = await responseData.json();
+          console.log("Response:", response);
+          const txid = response.txid;
+          const txidLink = `https://whatsonchain.com/tx/${txid}`;
+          txid.innerHTML = `Published to blockchain. Txid: <a href="${txidLink}" target="_blank">${txid}</a>`;
+          txid.style.cursor = "pointer";
+          txid.style.color = "#007bff";
         });
       };
 
