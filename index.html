@@ -129,6 +129,7 @@
         border: 1px solid #ddd;
         border-radius: 5px;
         word-wrap: break-word;
+        display: none;
       }
       .attestation p {
         margin-bottom: 10px;
@@ -163,10 +164,68 @@
       #downloadLink {
         display: none;
       }
+      button {
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .scanDiv {
+        border: 1px solid #333;
+        border-radius: 5px;
+        margin: 20px 0;
+        padding: 20px;
+      }
+      .signing,
+      .verifying {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+      }
 
       @media (max-width: 768px) {
+        .main {
+          flex-direction: column;
+          margin: 0;
+          width: 100%;
+        }
+        .container {
+          padding: 0 10px;
+        }
+
         header nav {
           flex-direction: column;
+        }
+        .main-nav a {
+          margin: 10px 0;
+        }
+        .form-control label {
+          margin-top: 10px;
+        }
+        .form-control input,
+        .form-control textarea,
+        .form-control button,
+        .scanner-controls button {
+          padding: 10px;
+        }
+        .signing,
+        .verifying {
+          padding: 10px;
+          width: 100%;
+        }
+        #qrDiv {
+          text-align: center;
+        }
+        #qr {
+          width: 100%;
+          height: auto;
         }
       }
     </style>
@@ -193,59 +252,66 @@
         The attestation statement is signed by the device's private key and can
         be verified by anyone using the device's public key.
       </p>
-      <div class="form-control">
-        <label for="attestationStatement">Attestation Statement</label>
-        <p id="time"></p>
-        <textarea
-          id="attestationStatement"
-          rows="5"
-          placeholder="Enter your attestation statement here"
-        ></textarea>
+      <div class="signing">
+        <div class="form-control">
+          <label for="attestationStatement">Attestation Statement</label>
+          <p id="time"></p>
+          <textarea
+            id="attestationStatement"
+            rows="5"
+            placeholder="Enter your attestation statement here"
+          ></textarea>
+        </div>
+        <button onclick="signAttestation()">Sign Attestation</button>
+        <div class="attestation">
+          <p id="data"></p>
+          <p id="publicKey"></p>
+          <p id="result"></p>
+        </div>
+        <div id="qrDiv">
+          <canvas id="qr"></canvas>
+          <a id="downloadLink" href=""></a>
+        </div>
       </div>
-      <button onclick="signAttestation()">Sign Attestation</button>
-      <div class="attestation">
-        <p id="data"></p>
-        <p id="publicKey"></p>
-        <p id="result"></p>
+      <div class="verifying">
+        <div class="scanDiv">
+          <div class="scanner-controls">
+            <button id="start-scan">Start Scan</button>
+            <button id="stop-scan" disabled>Stop Scan</button>
+            <p class="scanner-message" id="scanner-message"></p>
+          </div>
+          <div id="scanner"></div>
+        </div>
+
+        <div class="form-control">
+          <label for="attestationStatementToVerify"
+            >Verify Attestation Statement</label
+          >
+          <textarea
+            id="attestationStatementToVerify"
+            rows="5"
+            placeholder="Enter the attestation statement to verify here"
+          ></textarea>
+        </div>
+        <div class="form-control">
+          <label for="signatureToVerify">Signature</label>
+          <input
+            id="signatureToVerify"
+            type="text"
+            placeholder="Enter the signature to verify here"
+          />
+        </div>
+        <div class="form-control">
+          <label for="publicKeyToVerify">Public Key</label>
+          <input
+            id="publicKeyToVerify"
+            type="text"
+            placeholder="Enter the public key to verify here"
+          />
+        </div>
+        <button onclick="verifyAttestation()">Verify Attestation</button>
+        <p id="verifyResult"></p>
       </div>
-      <div id="qrDiv">
-        <canvas id="qr"></canvas>
-        <a id="downloadLink" href=""></a>
-      </div>
-      <div class="form-control">
-        <label for="attestationStatementToVerify"
-          >Verify Attestation Statement</label
-        >
-        <textarea
-          id="attestationStatementToVerify"
-          rows="5"
-          placeholder="Enter the attestation statement to verify here"
-        ></textarea>
-      </div>
-      <div class="form-control">
-        <label for="signatureToVerify">Signature</label>
-        <input
-          id="signatureToVerify"
-          type="text"
-          placeholder="Enter the signature to verify here"
-        />
-      </div>
-      <div class="form-control">
-        <label for="publicKeyToVerify">Public Key</label>
-        <input
-          id="publicKeyToVerify"
-          type="text"
-          placeholder="Enter the public key to verify here"
-        />
-      </div>
-      <button onclick="verifyAttestation()">Verify Attestation</button>
-      <p id="verifyResult"></p>
-      <div class="scanner-controls">
-        <button id="start-scan">Start Scan</button>
-        <button id="stop-scan" disabled>Stop Scan</button>
-        <p class="scanner-message" id="scanner-message"></p>
-      </div>
-      <div id="scanner"></div>
     </main>
 
     <footer>
