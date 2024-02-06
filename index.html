@@ -134,9 +134,13 @@
         This is a proof of attestation. The attestation is a cryptographic
         statement that a device is genuine and trustworthy...
       </p>
-
+      <p>
+        The attestation statement is signed by the device's private key and can
+        be verified by anyone using the device's public key.
+      </p>
       <div class="form-control">
         <label for="attestationStatement">Attestation Statement</label>
+        <p id="time"></p>
         <textarea
           id="attestationStatement"
           rows="5"
@@ -194,6 +198,14 @@
     </footer>
 
     <script>
+      let time;
+      setInterval(() => {
+        //local time and date
+        const todaysDateAndTime = new Date().toLocaleString();
+        time = todaysDateAndTime;
+        document.getElementById("time").innerText = todaysDateAndTime;
+        setTimeout(() => {}, 0);
+      }, 1000);
       const generateQRCode = (data) => {
         const qr = new QRious({
           element: document.getElementById("qr"),
