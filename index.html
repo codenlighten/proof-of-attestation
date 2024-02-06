@@ -486,9 +486,9 @@
           const response = await publishData(data);
 
           console.log("Response:", response);
-          const txid = response.txid;
-          const txidLink = `https://whatsonchain.com/tx/${txid}`;
-          txid.innerHTML = `Published to blockchain. Txid: <a href="${txidLink}" target="_blank">${txid}</a>`;
+          const tx = response.txid;
+          const txidLink = `https://whatsonchain.com/tx/${tx}`;
+          txid.innerHTML = `Published to blockchain. Txid: <a href="${txidLink}" target="_blank">${tx}</a>`;
           txid.style.cursor = "pointer";
           txid.style.color = "#007bff";
         });
