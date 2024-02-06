@@ -44,9 +44,9 @@
     ></script>
     <script src="https://cdn.jsdelivr.net/npm/qrious"></script>
     <script src="https://unpkg.com/bsv@1.5"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bsv-message.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bsv-mnemonic.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bsv-ecies.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bsv-message.min.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bsv-mnemonic.min.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bsv-ecies.min.js"></script> -->
     <style>
       /* reset */
       * {
@@ -430,6 +430,8 @@
               .toString(),
           })
         );
+        //    attestation display
+        document.querySelector(".attestation").style.display = "block";
         document.getElementById("qr").style.display = "block";
         document.getElementById("qr").style.margin = "20px auto";
         document.getElementById("qr").style.border = "1px solid #ddd";
