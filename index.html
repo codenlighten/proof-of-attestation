@@ -502,7 +502,7 @@
             JSON.stringify(data),
             localStorage.getItem("privateKey")
           );
-          const data = {
+          const d = {
             data: encryptedData,
             signature,
             publicKey: bsv.PrivateKey.fromWIF(
@@ -512,7 +512,7 @@
               .toString(),
           };
 
-          const response = await publishData(data);
+          const response = await publishData(d);
 
           console.log("Response:", response);
           const tx = response.txid;
