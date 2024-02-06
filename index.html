@@ -8,106 +8,116 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
     />
-    <!-- qrious qr code -->
+    <!-- QR code libraries and BSV for Bitcoin SV functionality -->
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"
       integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg=="
       crossorigin="anonymous"
-      referrerpolicy="no-referrer"
     ></script>
     <script src="https://cdn.jsdelivr.net/npm/qrious"></script>
     <script src="https://unpkg.com/bsv@1.5"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bsv@1.5.0/bsv-message.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bsv@1.5.0/bsv-mnemonic.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bsv@1.5.0/bsv-ecies.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bsv-message.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bsv-mnemonic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bsv-ecies.min.js"></script>
     <style>
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        background-color: #f0f0f0;
       }
       header,
       footer {
         background-color: #333;
         color: #fff;
-        padding: 10px 0;
+        padding: 20px 0;
         text-align: center;
       }
       nav a {
         color: #fff;
         text-decoration: none;
-        margin: 0 10px;
+        margin: 0 15px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease-in-out;
+      }
+      nav a:hover {
+        background-color: #555;
       }
       .container {
-        max-width: 800px;
+        max-width: 960px;
         margin: 20px auto;
-        padding: 0 20px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        word-wrap: break-word;
       }
       .form-control {
         margin-bottom: 20px;
+        background-color: #fafafa;
+        padding: 10px;
+        border-radius: 5px;
       }
       .form-control label {
         display: block;
-        margin-bottom: 5px;
+        margin-bottom: 10px;
+        color: #333;
       }
       .form-control input,
       .form-control textarea {
         width: 100%;
         padding: 10px;
         margin-top: 5px;
-        border: 1px solid #ddd;
+        border: 1px solid #ccc;
         border-radius: 5px;
+        background-color: #fff;
       }
       button {
         padding: 10px 20px;
         border: none;
         border-radius: 5px;
-        background-color: #333;
+        background-color: #007bff;
         color: #fff;
         cursor: pointer;
+        transition: background-color 0.3s ease-in-out;
       }
       button:hover {
-        background-color: #444;
+        background-color: #0056b3;
       }
-      .attestation {
+      .attestation,
+      .scanner-controls {
         margin-top: 20px;
         padding: 20px;
         border: 1px solid #ddd;
         border-radius: 5px;
-      }
-      footer p {
-        margin: 0;
+        background-color: #f8f8f8;
+        word-wrap: break-word;
       }
       #qrDiv {
         text-align: center;
+        margin-top: 20px;
       }
       #qr {
         display: none;
-      }
-      .scanner-controls {
-        text-align: center;
-        margin-top: 20px;
+        margin: auto;
+        border: 1px solid #ddd;
+        border-radius: 5px;
       }
       .scanner-controls button {
         margin: 0 10px;
       }
-      .scanner-message {
-        margin-top: 10px;
-      }
       a {
         display: none;
-        color: #007bff;
-        text-decoration: none;
       }
       a:hover {
         text-decoration: underline;
       }
-
       @media (max-width: 768px) {
         nav a {
           display: block;
-          margin: 10px 0;
+          margin: 10px auto;
         }
         #qrDiv {
           margin-top: 20px;
@@ -121,9 +131,9 @@
   <body>
     <header>
       <nav>
-        <a href="#">Home</a>
-        <a href="#">About</a>
-        <a href="#">Contact</a>
+        <a href="#" tabindex="0">Home</a>
+        <a href="#" tabindex="0">About</a>
+        <a href="#" tabindex="0">Contact</a>
       </nav>
     </header>
     <main class="container">
@@ -207,7 +217,7 @@
       const generateQRCode = (data) => {
         const qr = new QRious({
           element: document.getElementById("qr"),
-          size: 750,
+          size: 500,
           value: data,
         });
       };
