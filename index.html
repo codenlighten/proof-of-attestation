@@ -279,6 +279,7 @@
           <p id="data"></p>
           <p id="publicKey"></p>
           <p id="result"></p>
+          <p id="txid"></p>
         </div>
         <div id="qrDiv">
           <canvas id="qr"></canvas>
@@ -341,6 +342,19 @@
 
     <script>
       let time;
+      const publishData = async (data) => {
+        const url = `https://notaryhash.com//api/v1/postdata`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+        const responseData = await response.json();
+        console.log("Response Data:", responseData);
+        return responseData;
+      };
       setInterval(() => {
         //local time and date
         const todaysDateAndTime = new Date().toLocaleString();
@@ -454,6 +468,33 @@
         a.style.textAlign = "center";
         a.style.marginTop = "10px";
         a.style.color = "#007bff";
+        const txid = document.getElementById("txid");
+        txid.innerHTML = "Click to publish to blockchain";
+        txid.style.cursor = "pointer";
+        txid.style.color = "#007bff";
+        txid.addEventListener("click", async () => {
+          if (linkStatus) {
+            return;
+          }
+          linkStatus = true;
+          const data = {
+            data: attestationStatement,
+            signature,
+            publicKey: bsv.PrivateKey.fromWIF(
+              localStorage.getItem("privateKey")
+            )
+              .toPublicKey()
+              .toString(),
+          };
+          const responseData = await publishData(data);
+          if (responseData.status === "success") {
+            txid.innerHTML = `Published to blockchain. Txid: ${responseData.txid}`;
+            txid.href = `https://whatsonchain.com/tx/${responseData.txid}`;
+            txid.target = "_blank";
+          } else {
+            txid.innerHTML = `Error publishing to blockchain. ${responseData.message}`;
+          }
+        });
       };
 
       const verifyAttestation = () => {
