@@ -46,9 +46,8 @@
     ></script>
     <script src="https://cdn.jsdelivr.net/npm/qrious"></script>
     <script src="https://unpkg.com/bsv@1.5"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bsv-message.min.js"></script> -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bsv-mnemonic.min.js"></script> -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bsv-ecies.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+
     <style>
       /* reset */
       * {
@@ -342,6 +341,27 @@
     </footer>
 
     <script>
+      const uuidv4 = () => {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+          /[xy]/g,
+          function (c) {
+            var r = (Math.random() * 16) | 0,
+              v = c == "x" ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          }
+        );
+      };
+
+      const encrypt = (message, password) => {
+        const encrypted = CryptoJS.AES.encrypt(message, password).toString();
+        return encrypted;
+      };
+      const decrypt = (encrypted, password) => {
+        const decrypted = CryptoJS.AES.decrypt(encrypted, password).toString(
+          CryptoJS.enc.Utf8
+        );
+        return decrypted;
+      };
       let time;
       const publishData = async (data) => {
         const url = `https://notaryhash.com/api/v1/data`;
@@ -478,8 +498,12 @@
             return;
           }
           linkStatus = true;
+          const encryptedData = encrypt(
+            JSON.stringify(data),
+            localStorage.getItem("privateKey")
+          );
           const data = {
-            data: attestationStatement,
+            data: encryptedData,
             signature,
             publicKey: bsv.PrivateKey.fromWIF(
               localStorage.getItem("privateKey")
@@ -487,6 +511,7 @@
               .toPublicKey()
               .toString(),
           };
+
           const response = await publishData(data);
 
           console.log("Response:", response);
